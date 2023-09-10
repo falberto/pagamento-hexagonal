@@ -130,6 +130,6 @@
       (ring/create-default-handler))))
 
 (comment
-  (handler-transaction {})
+  (handler-create-user! {})
   (user/reset!)
   :a)

@@ -12,6 +12,7 @@
                  [io.pedestal/pedestal.service "0.6.0"]
                  [com.brunobonacci/mulog "0.9.0"]]
   :plugins [[lein-ring "0.12.6"]]
-  :profiles {:dev     {:source-paths ["dev"]}
-             :uberjar {:aot :all}}
+  :profiles {:dev     {:source-paths ["dev"]
+                       :dependencies [[djblue/portal "0.46.0"]
+                                      #_[ch.qos.logback/logback-classic "1.4.11"]]}}
   :repl-options {:init-ns picpago.core})
