@@ -2,6 +2,7 @@
   (:require [io.pedestal.interceptor.chain :as chain]
             [taoensso.timbre :as log]
             [io.pedestal.interceptor :as impl]
+            [com.brunobonacci.mulog :as mu]
             [picpago.domain.models :as domain.models]))
 
 (defn interceptor

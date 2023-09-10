@@ -25,19 +25,18 @@
 
 
 (defn- workflows []
-  :user/criar-lojista domain/create-entity!
-  :user/criar-pessoa domain/create-entity!)
+  :user/criar-lojista [domain/create-entity!]
+  :user/create-pessoa [domain/create-entity!])
 
-
-(defn available-commands
-  "Retorna a lista de comandos suportados pela API."
-  []
-  (sort (keys (workflows))))
-
-(defn available-entities
-  "Retorna a lista de entidades conhecidas pela API."
-  []
-  (sort (domain/available-entities)))
+;(defn available-commands
+;  "Retorna a lista de comandos suportados pela API."
+;  []
+;  (sort (keys (workflows))))
+;
+;(defn available-entities
+;  "Retorna a lista de entidades conhecidas pela API."
+;  []
+;  (sort (domain/available-entities)))
 
 (defn execute!
   "Executa um processo imediatamente.
@@ -45,17 +44,17 @@
   Pode ser acionado diretamente em operações sincronas ou por adpters de comandos/eventos ocorridos na aplicação.
 
   See: (available-commands) ;; lista de comandos suportados"
-  [{:command/keys [correlation-id type metadata] :as command}]
+  [{:command/keys [correlation-id type] :as command}]
   (tap> {:fn   ::execute!
          :args command})
-  (let [correlation-id (or correlation-id (random-uuid))
+  (let [-correlation-id (or correlation-id (throw (ex-info "correlation id must be informed." {:command command})))
         workflow (get (workflows) type)
-        id (or (:entity/id command) correlation-id)
+        #_#_id (or (:entity/id command) -correlation-id)
         -command (assoc command
-                   :entity/id id
-                   :command/correlation-id correlation-id)]
+                   ;:entity/id id
+                   :command/correlation-id -correlation-id)]
     (when-not workflow
-      (throw (ex-info (str "Workflow nao implementado para :command/type " type)
+      (throw (ex-info (str "workflow not found for command/type " type)
                       -command)))
     (let [context (interceptor/execute {:tx-data -command} workflow)]
       (assoc -command :command/status :executed

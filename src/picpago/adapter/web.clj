@@ -54,10 +54,10 @@
 (defn handler-create-user!
   [request]
   (let [result (api/execute! {:entity/type            :user
-                              :command/type           :user/criar-pessoa
+                              :command/type           :user/create-pessoa
                               :command/data           (-> request :parameters :body)
                               :command/metadata       {}
-                              :command/correlation-id {}})]
+                              :command/correlation-id (random-uuid)})]
     (success {:id (:entity/id result)})))
 
 

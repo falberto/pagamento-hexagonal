@@ -1,6 +1,9 @@
 (ns picpago.adapter.sql.sqlite
-  (:require [picpago.domain.models :as domain.models]
-            [picpago.ports.entities :as ports.entities]))
+  (:require [picpago.ports.entities :as ports.entities]))
 
+(defmethod ports.entities/create! :user/create-pessoa [command]
+  (println command))
 
-(defmulti ports.entities/create! :user/criar-pessoa [command])
+(comment
+  (ports.entities/create! {:entity/type :user/create-pessoa})
+  :a)

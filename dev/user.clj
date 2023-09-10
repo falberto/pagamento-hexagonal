@@ -1,7 +1,10 @@
 (ns user
   (:require [picpago.adapter.web :as core]
             [ring.adapter.jetty :as jetty]
-            [ragtime.jdbc :as jdbc])
+            [ragtime.jdbc :as jdbc]
+            [ragtime.core :as ragtime.core]
+            [ragtime.repl :as repl]
+            [picpago.config :as config])
   (:import (org.eclipse.jetty.server Server)))
 
 (defonce server (atom nil))
@@ -20,10 +23,11 @@
   (start!))
 
 (def config
-  {:datastore  (jdbc/sql-database {:connection-uri "jdbc:sqlite::memory:"})
+  {:datastore  (jdbc/sql-database config/sqlite)
    :migrations (jdbc/load-resources "migrations")})
 
 (comment
+  (repl/migrate config)
   (reset!)
   :end)
 

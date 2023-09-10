@@ -2,8 +2,6 @@
   (:require [picpago.ports.entities :as ports.entities]
             [picpago.domain.models :as domain.models]))
 
-
-
 (defn- -create! [command]
   (domain.models/check-entity-spec! (:entity/type command)
                                     (:command/data command))
