@@ -28,6 +28,7 @@
 
 (comment
   (repl/migrate config)
+  (repl/rollback config)
   (reset!)
   :end)
 

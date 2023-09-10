@@ -1,7 +1,7 @@
 {:up   ["CREATE TABLE pessoa (id string primary key,
                               nome string,
-                              cpj string,
-                              email string,
+                              cpj string unique,
+                              email string unique,
                               senha string,
                               created date,
                               updated date);"]
