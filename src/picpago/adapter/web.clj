@@ -11,23 +11,82 @@
             [reitit.ring.middleware.multipart :as multipart]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
+            [taoensso.timbre :as log]
+            [picpago.ports.api :as api]
             [reitit.swagger :as swagger]))
 
-(defn handler-transaction
+(defn success
+  ([]
+   (success nil))
+  ([payload]
+   {:status 200
+    :body   payload}))
+
+(defn- accepted
+  [payload]
+  {:status 202
+   :body   payload})
+
+(defn- no-content
+  []
+  {:status 204})
+
+(defn- bad-request
+  [payload]
+  {:status 400
+   :body   payload})
+
+(defn- conflict
+  [payload]
+  {:status 409
+   :body   {:message payload}})
+
+(defn- not-found
+  []
+  {:status 404
+   :body   {:message "Registro não encontrado."}})
+
+(defn handler-transaction!
   [request]
   {:status 200
    :body   (-> request :parameters :body)})
+
+(defn handler-create-user!
+  [request]
+  (let [result (api/execute! {:entity/type            :user
+                              :command/type           :user/criar-pessoa
+                              :command/data           (-> request :parameters :body)
+                              :command/metadata       {}
+                              :command/correlation-id {}})]
+    (success {:id (:entity/id result)})))
+
+
+(defn handler-show-user!
+  [request]
+  {:status 200
+   :body   (-> request :parameters :path :id)})
 
 (def app
   (ring/ring-handler
     (ring/router
       ["/api"
+       ["/user/:id"
+        {:get {:parameters {:path [:map
+                                   [:id string?]]}
+               :handler    handler-show-user!}}]
+       ["/user"
+        {:post {:parameters {:body [:map
+                                    [:nome string?]
+                                    [:cpf string?]
+                                    [:email string?]
+                                    [:senha string?]]}
+                :handler    handler-transaction!}}]
        ["/transaction" {:post
                         {:parameters {:body [:map
                                              [:value double?]
                                              [:payer int?]
                                              [:payee int?]]}
-                         :handler    handler-transaction}}]]
+                         :handler    handler-transaction!}}]]
       ;; router data affecting all routes
       {:data {:coercion   (coercion.malli/create
                             {;; set of keys to include in error messages
