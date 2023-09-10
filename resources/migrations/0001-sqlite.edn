@@ -1,0 +1,7 @@
+{:up   ["CREATE TABLE pessoa (id int, nome string, cpj string, email string, senha string);"]
+ :down ["DROP TABLE foo;"]}
+
+{:nome "Felipe"
+ :cpf "341.319.940-46"
+ :email "felipe@email.com.br"
+ :senha "123"}
