@@ -2,25 +2,21 @@
   (:require [malli.util :as mu]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as coercion.malli]
-            [reitit.ring :as ring]
-            [reitit.coercion.spec]
-            [reitit.ring.coercion :as rrc]
-            [reitit.ring.coercion :as coercion]
             [reitit.openapi :as openapi]
-            [reitit.swagger :as swagger]
+            [reitit.ring :as ring]
+            [reitit.ring.coercion]
+            [reitit.swagger-ui :as swagger-ui]
+            [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]
+            [reitit.ring.middleware.multipart :as multipart]
             [reitit.ring.middleware.muuntaja :as muuntaja]
-            [reitit.ring.middleware.parameters :as parameters]))
-
+            [reitit.ring.middleware.parameters :as parameters]
+            [reitit.swagger :as swagger]))
 
 (defn handler-transaction
   [request]
-  (println {:headers (select-keys request [:headers])
-            :body    (slurp (:body request))
-            :body1 (:body request)})
-
   {:status 200
-   :body   {}})
+   :body   (-> request :parameters :body)})
 
 (def app
   (ring/ring-handler
@@ -28,11 +24,10 @@
       ["/api"
        ["/transaction" {:post
                         {:parameters {:body [:map
-                                             {:closed true}
                                              [:value double?]
                                              [:payer int?]
                                              [:payee int?]]}
-                         :handler handler-transaction}}]]
+                         :handler    handler-transaction}}]]
       ;; router data affecting all routes
       {:data {:coercion   (coercion.malli/create
                             {;; set of keys to include in error messages
@@ -62,8 +57,20 @@
                            ;; coercing response bodys
                            coercion/coerce-response-middleware
                            ;; coercing request parameters
-                           coercion/coerce-request-middleware]}})))
+                           coercion/coerce-request-middleware
+                           ;; multipart
+                           multipart/multipart-middleware]}})
+    (ring/routes
+      (swagger-ui/create-swagger-ui-handler
+        {:path "/"
+         :config {:validatorUrl nil
+                  :urls [{:name "swagger", :url "swagger.json"}
+                         {:name "openapi", :url "openapi.json"}]
+                  :urls.primaryName "openapi"
+                  :operationsSorter "alpha"}})
+      (ring/create-default-handler))))
 
 (comment
   (handler-transaction {})
+  (user/reset!)
   :a)
