@@ -2,7 +2,8 @@
   "Entry point para as funcionalidades do sistema.
 
   Na literatura, aqui é a porta de entrada para a aplicação (drivers)."
-  (:require [taoensso.timbre :as log]
+  (:require [picpago.domain.interceptor :as interceptor]
+            [taoensso.timbre :as log]
             [picpago.domain.core :as domain]))
 
 (defn- sort-map [m]
@@ -56,7 +57,7 @@
     (when-not workflow
       (throw (ex-info (str "Workflow nao implementado para :command/type " type)
                       -command)))
-    (let [context (workflow {:tx-data -command} workflow)]
+    (let [context (interceptor/execute {:tx-data -command} workflow)]
       (assoc -command :command/status :executed
                       :command/data (get-in context [:tx-data :command/data])
                       :entity/id (get-in context [:tx-data :entity/id])))))

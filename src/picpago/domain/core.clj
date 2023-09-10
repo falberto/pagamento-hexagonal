@@ -1,7 +1,7 @@
 (ns picpago.domain.core
   (:require [picpago.ports.entities :as ports.entities]
-            [picpago.domain.models :as domain.models]
-            ))
+            [picpago.domain.models :as domain.models]))
+
 
 
 (defn- -create! [command]
