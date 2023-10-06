@@ -25,8 +25,8 @@
 
 
 (defn- workflows []
-  :user/criar-lojista [domain/create-entity!]
-  :user/create-pessoa [domain/create-entity!])
+  {:user/criar-lojista [domain/create-entity!]
+   :user/create-pessoa [domain/create-entity!]})
 
 ;(defn available-commands
 ;  "Retorna a lista de comandos suportados pela API."
@@ -56,7 +56,7 @@
     (when-not workflow
       (throw (ex-info (str "workflow not found for command/type " type)
                       -command)))
-    (let [context (interceptor/execute {:tx-data -command} workflow)]
+    (let [context (interceptor/interceptor {:tx-data -command} workflow)]
       (assoc -command :command/status :executed
                       :command/data (get-in context [:tx-data :command/data])
                       :entity/id (get-in context [:tx-data :entity/id])))))
